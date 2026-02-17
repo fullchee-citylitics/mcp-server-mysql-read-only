@@ -9,7 +9,7 @@
  *   Tool      — execute arbitrary SQL via `mysql_query`
  *
  * Configure via environment variables (or a .env file):
- *   MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
+ *   MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASS, MYSQL_DB
  */
 // Load .env file using Node.js 24+ native support
 try {
@@ -29,8 +29,8 @@ const pool = mysql.createPool({
     host: process.env.MYSQL_HOST ?? "127.0.0.1",
     port: Number(process.env.MYSQL_PORT ?? 3306),
     user: process.env.MYSQL_USER ?? "root",
-    password: process.env.MYSQL_PASSWORD ?? "",
-    database: process.env.MYSQL_DATABASE ?? undefined,
+    password: process.env.MYSQL_PASS ?? "",
+    database: process.env.MYSQL_DB ?? undefined,
     waitForConnections: true,
     connectionLimit: 10,
 });
@@ -170,14 +170,18 @@ async function ensureReadOnly() {
             else if ("code" in err &&
                 err.code === "ER_ACCESS_DENIED_ERROR") {
                 console.error("❌ Error: Access denied to MySQL database");
-                console.error(`User: ${process.env.MYSQL_USER ?? "root"}, Database: ${process.env.MYSQL_DATABASE ?? "(none)"}`);
-                console.error("Please check that MYSQL_USER, MYSQL_PASSWORD, and MYSQL_DATABASE are correct");
+                console.error(`User: ${process.env.MYSQL_USER ?? "root"}, Database: ${process.env.MYSQL_DB ?? "(none)"}`);
+                console.error("Please check that MYSQL_USER, MYSQL_PASS, and MYSQL_DB are correct");
+                if (!process.env.MYSQL_DB) {
+                    console.error("\n⚠️  MYSQL_DB is not set. Some MySQL users require a database to be specified.");
+                    console.error("Set MYSQL_DB in your .env file or Claude Desktop config.");
+                }
                 throw err;
             }
             else if ("code" in err && err.code === "ER_BAD_DB_ERROR") {
                 console.error("❌ Error: Database does not exist");
-                console.error(`Database: ${process.env.MYSQL_DATABASE ?? "(none)"}`);
-                console.error("Please check that MYSQL_DATABASE is correct");
+                console.error(`Database: ${process.env.MYSQL_DB ?? "(none)"}`);
+                console.error("Please check that MYSQL_DB is correct");
                 throw err;
             }
             else {
