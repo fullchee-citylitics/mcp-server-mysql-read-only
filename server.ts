@@ -14,7 +14,7 @@
  */
 
 import "dotenv/config";
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CallToolRequestSchema,
@@ -42,10 +42,13 @@ const pool = mysql.createPool({
 // 2. Create the MCP server
 // ---------------------------------------------------------------------------
 
-const server = new Server(
+const mcpServer = new McpServer(
   { name: "mysql", version: "1.0.0" },
   { capabilities: { resources: {}, tools: {} } },
 );
+
+// Access the underlying Server for low-level request handlers
+const server = mcpServer.server;
 
 // ---------------------------------------------------------------------------
 // 3. Resources – list tables & read column schemas
@@ -142,7 +145,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 
 async function main() {
   const transport = new StdioServerTransport();
-  await server.connect(transport);
+  await mcpServer.connect(transport);
   console.error("MySQL MCP server running on stdio");
 }
 
