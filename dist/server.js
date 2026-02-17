@@ -119,13 +119,40 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 async function ensureReadOnly() {
     try {
         await pool.query('CREATE TEMPORARY TABLE _readonly_check (id INT)');
-        console.error('Error: User has write privileges. Only read-only users are allowed.');
+        console.error('❌ Error: User has write privileges. Only read-only users are allowed.');
+        console.error('Please configure a MySQL user with SELECT-only permissions.');
         process.exit(1);
     }
     catch (err) {
         // Expected to fail for read-only users
-        if (err instanceof Error && err.message.includes('denied')) {
-            console.error('✓ User is read-only');
+        if (err instanceof Error) {
+            if (err.message.includes('denied')) {
+                console.error('✓ User is read-only');
+            }
+            else if ('code' in err && err.code === 'ECONNREFUSED') {
+                console.error('❌ Error: Cannot connect to MySQL database');
+                console.error(`Connection details: ${process.env.MYSQL_HOST ?? '127.0.0.1'}:${process.env.MYSQL_PORT ?? 3306}`);
+                console.error('Please check that:');
+                console.error('  - MySQL server is running');
+                console.error('  - MYSQL_HOST and MYSQL_PORT are correct');
+                console.error('  - Firewall allows the connection');
+                throw err;
+            }
+            else if ('code' in err && err.code === 'ER_ACCESS_DENIED_ERROR') {
+                console.error('❌ Error: Access denied to MySQL database');
+                console.error(`User: ${process.env.MYSQL_USER ?? 'root'}, Database: ${process.env.MYSQL_DATABASE ?? '(none)'}`);
+                console.error('Please check that MYSQL_USER, MYSQL_PASSWORD, and MYSQL_DATABASE are correct');
+                throw err;
+            }
+            else if ('code' in err && err.code === 'ER_BAD_DB_ERROR') {
+                console.error('❌ Error: Database does not exist');
+                console.error(`Database: ${process.env.MYSQL_DATABASE ?? '(none)'}`);
+                console.error('Please check that MYSQL_DATABASE is correct');
+                throw err;
+            }
+            else {
+                throw err;
+            }
         }
         else {
             throw err;
@@ -142,6 +169,9 @@ async function main() {
     console.error("MySQL MCP server running on stdio");
 }
 main().catch((err) => {
-    console.error("Fatal:", err);
+    if (err instanceof Error && !('code' in err)) {
+        console.error("❌ Fatal error:", err.message);
+    }
+    // Error details already logged by ensureReadOnly or other handlers
     process.exit(1);
 });
