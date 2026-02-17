@@ -1,7 +1,7 @@
 {
-  "name": "mcp-server-mysql-minimal",
+  "name": "mcp-server-minimal-read-only-mysql",
   "version": "1.0.0",
-  "description": "Minimal MCP server for MySQL",
+  "description": "Minimal MCP server for read-only access to MySQL",
   "type": "module",
   "main": "dist/server.js",
   "bin": "dist/server.js",
