@@ -1,0 +1,3 @@
+[hooks.pre-commit]
+paths = ["server.ts"]
+run = "pnpm build"

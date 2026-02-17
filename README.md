@@ -13,6 +13,7 @@ A minimal, single-file MCP server that gives LLMs read-only access to a MySQL da
 
 ```bash
 pnpm install          # or npm install
+pnpm prepare
 cp .env.example .env  # edit with your MySQL credentials
 pnpm build
 ```
@@ -67,5 +68,6 @@ Or if you have a `.env` file in the project directory, you can omit the `env` bl
 server.ts        ← the entire server (~130 lines)
 package.json
 tsconfig.json
+prek.toml        ← pre-commit hook config
 .env.example
 ```
