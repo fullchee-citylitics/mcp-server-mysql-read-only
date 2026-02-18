@@ -61,17 +61,3 @@ CREATE USER 'readonly'@'localhost' IDENTIFIED BY 'your_password';
 GRANT SELECT ON your_database.* TO 'readonly'@'localhost';
 FLUSH PRIVILEGES;
 ```
-
-### With Claude Desktop / Cursor / any MCP client
-
-Add to your MCP config (e.g. `claude_desktop_config.json`):
-
-## Project structure
-
-```
-server.ts        ← the entire server (~130 lines)
-package.json
-tsconfig.json
-prek.toml        ← pre-commit hook config
-.env.example
-```
