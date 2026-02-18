@@ -11,6 +11,8 @@ A minimal, single-file MCP server that gives LLMs read-only access to a MySQL da
 
 ## Usage
 
+Paste this into your `.vscode/mcp.json`
+
 ```json
 {
   "servers": {
